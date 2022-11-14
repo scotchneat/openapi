@@ -25,7 +25,7 @@ tags:
       features, and configuration details already set up for you. They can be found in the
       [DigitalOcean Marketplace](https://www.digitalocean.com/docs/marketplace).
 
-  - name: Account
+  - name: Account TEST
     description: Provides information about your current account.
 
   - name: Actions

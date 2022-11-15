@@ -28,7 +28,7 @@ jobs:
           name: Validate Client Generation
           sha: ${{ github.event.workflow_run.head_sha }}
           status: in_progress
-          details_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
+          details_url: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs/$GITHUB_JOB
 
       - name: Check out pydo repo
         uses: actions/checkout@v2.5.0
@@ -51,14 +51,18 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate Python client
+      - name: Test Python client generation
+        id: test-client
         working-directory: pydo
-        run: SPEC_FILE=../openapi-bundled.yaml make generate
+        run: |
+          SPEC_FILE=../openapi-bundled.yaml make generate
+          make test-mocked
 
-      - name: Run Mocked Tests
-        id: test-mocked
-        working-directory: pydo
-        run: make test-mocked
+      - name: Results
+        run: |
+          if [[ ${{ steps.test-client.outcome }} != 'success' ]]; then
+            echo "test_result=failure" >> $GITHUB_ENV
+          fi
 
       - name: GitHub Checks
         if: always()
@@ -67,6 +71,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           name: Validate Client Generation
           sha: ${{ github.event.workflow_run.head_sha }}
-          conclusion: ${{ steps.test-mocked.outcome }}
+          conclusion: ${{ env.test_result }}
           status: completed
-          details_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
+          details_url: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs/$GITHUB_JOB

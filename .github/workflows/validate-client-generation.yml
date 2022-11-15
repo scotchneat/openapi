@@ -1,4 +1,4 @@
-name: Spec PR
+name: Validate Client Generation
 
 on:
   workflow_run:

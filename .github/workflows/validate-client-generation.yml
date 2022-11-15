@@ -35,9 +35,8 @@ jobs:
       - name: Download PR spec
         run: |
           gh run download ${{ github.event.workflow_run.id }} -n openapi-bundled
-          # workflow_conclusion: success
-          # pr: ${{github.event.pull_request.number}}
-          # name: openapi-bundled
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate Python client
         run: SPEC_FILE=openapi-bundled.yaml make generate

@@ -28,7 +28,7 @@ jobs:
           name: Validate Client Generation
           sha: ${{ github.event.workflow_run.head_sha }}
           status: in_progress
-          details_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          details_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
 
       - name: Check out pydo repo
         uses: actions/checkout@v2.5.0
@@ -57,6 +57,7 @@ jobs:
 
       - name: Run Mocked Tests
         id: test-mocked
+        working-directory: pydo
         run: make test-mocked
 
       - name: GitHub Checks
@@ -68,4 +69,4 @@ jobs:
           sha: ${{ github.event.workflow_run.head_sha }}
           conclusion: ${{ steps.test-mocked.outcome }}
           status: completed
-          details_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          details_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}

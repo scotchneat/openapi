@@ -18,6 +18,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check out openapi
+        uses: actions/checkout@v2.5.0
+
+      - name: GitHub Checks
+        uses: LouisBrunner/checks-action@v1.5.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: Validate Client Generation
+          sha: ${{ github.event.workflow_run.head_sha }}
+          status: in_progress
+
       - name: Check out pydo repo
         uses: actions/checkout@v2.5.0
         with:
@@ -43,3 +54,17 @@ jobs:
         run: |
           cd pydo
           SPEC_FILE=../openapi-bundled.yaml make generate
+
+      - name: Run Mocked Tests
+        id: test-mocked
+        run: make test-mocked
+
+      - name: GitHub Checks
+        if: always()
+        uses: LouisBrunner/checks-action@v1.5.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: Validate Client Generation
+          sha: ${{ github.event.workflow_run.head_sha }}
+          conclusion: ${{ steps.test-mocked.outcome }}
+          status: completed

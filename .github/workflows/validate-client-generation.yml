@@ -13,7 +13,7 @@ jobs:
     
     env:
       check_name: Validate client generation
-      target_url: '$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs/$GITHUB_JOB'
+      target_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
 
     if: >
       github.event.workflow_run.event == 'pull_request' &&

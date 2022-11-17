@@ -22,6 +22,9 @@ jobs:
         run: |
           target_url=$(gh api /repos/scotchneat/openapi/actions/runs/3491147011/jobs | \
             jq -r '.jobs[] |  select (.name == "${{ github.workflow }}") | .html_url')
+            
+          echo "target_url=$target_url"
+          
           echo "target_url=$target_url" >> $GITHUB_ENV
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

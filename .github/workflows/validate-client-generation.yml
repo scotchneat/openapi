@@ -6,14 +6,14 @@ on:
       - 'Spec PR'
     types:
       - completed
-      
-env:
-  check_name: Validate client generation
-  target_url: ${{ env.GITHUB_SERVER_URL }}/${{ env.GITHUB_REPOSITORY }}/actions/runs/${{ env.GITHUB_RUN_ID }}/jobs/${{ env.GITHUB_JOB }}
 
 jobs:
   validate-client-gen:
     name: Validate client generation
+    
+    env:
+      check_name: Validate client generation
+      target_url: ${{ env.GITHUB_SERVER_URL }}/${{ env.GITHUB_REPOSITORY }}/actions/runs/${{ env.GITHUB_RUN_ID }}/jobs/${{ env.GITHUB_JOB }}
 
     if: >
       github.event.workflow_run.event == 'pull_request' &&

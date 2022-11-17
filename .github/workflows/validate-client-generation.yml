@@ -13,7 +13,7 @@ jobs:
     
     env:
       check_name: Validate client generation
-      target_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs/${{ github.job }}
+      target_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
     if: >
       github.event.workflow_run.event == 'pull_request' &&
@@ -79,9 +79,9 @@ jobs:
         run: |
           gh api --method POST -H "Accept: application/vnd.github+json" \
             /repos/scotchneat/openapi/statuses/${{ github.event.workflow_run.head_sha }} \
-            -f state='$test_result' \
+            -f state='${{ env.test_result }}' \
             -f target_url='${{ env.target_url }}' \
-            -f description='$check_description' \
+            -f description='${{ env.check_description }}' \
             -f context='${{ env.check_name }}'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

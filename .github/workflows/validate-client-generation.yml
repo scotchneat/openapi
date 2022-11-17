@@ -6,6 +6,9 @@ on:
       - 'Spec PR'
     types:
       - completed
+      
+env:
+  check_name: Validate client generation
 
 jobs:
   validate-client-gen:
@@ -21,14 +24,14 @@ jobs:
       - name: Check out openapi
         uses: actions/checkout@v2.5.0
 
-      - name: GitHub Checks
-        uses: LouisBrunner/checks-action@v1.5.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: Validate Client Generation
-          sha: ${{ github.event.workflow_run.head_sha }}
-          status: in_progress
-          details_url: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs/$GITHUB_JOB
+      - name: Add check to PR
+        run: |
+          gh api --method POST -H "Accept: application/vnd.github+json" \
+            /repos/scotchneat/openapi/statuses/${{ github.event.workflow_run.head_sha }} \
+            -f state='pending' \
+            -f target_url='$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs/$GITHUB_JOB' \
+            -f description='Starting pydo validation' \
+            -f context='$check_name'
 
       - name: Check out pydo repo
         uses: actions/checkout@v2.5.0
@@ -59,18 +62,21 @@ jobs:
           make test-mocked
 
       - name: Results
+        if: always()
         run: |
-          if [[ ${{ steps.test-client.outcome }} != 'success' ]]; then
+          if [[ ${{ steps.test-client.outcome }} == 'success' ]]; then
+            echo "test_result=success" >> $GITHUB_ENV
+            echo "check_description=Successfully validated generated client" >> $GITHUB_ENV
+          else
             echo "test_result=failure" >> $GITHUB_ENV
+            echo "check_description=Failed to validate generated client" >> $GITHUB_ENV
           fi
 
-      - name: GitHub Checks
-        if: always()
-        uses: LouisBrunner/checks-action@v1.5.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: Validate Client Generation
-          sha: ${{ github.event.workflow_run.head_sha }}
-          conclusion: ${{ env.test_result }}
-          status: completed
-          details_url: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs/$GITHUB_JOB
+      - name: Update check on PR
+        run: |
+          gh api --method POST -H "Accept: application/vnd.github+json" \
+            /repos/scotchneat/openapi/statuses/${{ github.event.workflow_run.head_sha }} \
+            -f state='$test_result' \
+            -f target_url='$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs/$GITHUB_JOB' \
+            -f description='$check_description' \
+            -f context='$check_name'

@@ -9,7 +9,7 @@ on:
 
 jobs:
   validate-client-gen:
-    name: Validate client generation
+    name: Validate Client Generation
 
     if: >
       github.event.workflow_run.event == 'pull_request' &&
@@ -17,18 +17,11 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Set vars
-        run: |
-          target_url=$(gh api /repos/scotchneat/openapi/actions/runs/3491147011/jobs | \
-            jq -r '.jobs[] |  select (.name == "${{ github.workflow }}") | .html_url')
-            
-          echo "target_url=$target_url"
-          
-          echo "target_url=$target_url" >> $GITHUB_ENV
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      target_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      
+    steps:    
       - name: Check out openapi
         uses: actions/checkout@v2.5.0
 
@@ -40,8 +33,6 @@ jobs:
             -f target_url='${{ env.target_url }}' \
             -f description='Starting pydo validation' \
             -f context='${{ github.workflow }}'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check out pydo repo
         uses: actions/checkout@v2.5.0
@@ -90,5 +81,3 @@ jobs:
             -f target_url='${{ env.target_url }}' \
             -f description='${{ env.check_description }}' \
             -f context='${{ github.workflow }}'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

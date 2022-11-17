@@ -80,7 +80,7 @@ jobs:
           gh api --method POST -H "Accept: application/vnd.github+json" \
             /repos/scotchneat/openapi/statuses/${{ github.event.workflow_run.head_sha }} \
             -f state='$test_result' \
-            -f target_url='$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs/$GITHUB_JOB' \
+            -f target_url='${{ env.target_url }}' \
             -f description='$check_description' \
             -f context='${{ env.check_name }}'
         env:
